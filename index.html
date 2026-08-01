@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniStudio AI — Free AI Studio & Base44 Web/App Builder</title>
+  <meta name="description" content="Free AI-powered Studio & Web/App Builder like Base44 & Google AI Studio with free subdomains, GitHub sync, and Play Store app exporter.">
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- JSZip for exporting zip packages -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+
+  <!-- TOP HEADER NAV -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="logo-icon">
+        <i data-lucide="sparkles"></i>
+      </div>
+      <div class="brand-text">
+        <h1>OmniStudio <span>AI</span></h1>
+        <span class="badge-free">100% Free & Open</span>
+      </div>
+    </div>
+
+    <!-- MAIN NAV TABS -->
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-tab="builder">
+        <i data-lucide="layout-template"></i> Base44 App Builder
+      </button>
+      <button class="nav-btn" data-tab="ai-studio">
+        <i data-lucide="cpu"></i> Google AI Studio
+      </button>
+      <button class="nav-btn" data-tab="subdomain">
+        <i data-lucide="globe"></i> Free Domain & Hosting
+      </button>
+      <button class="nav-btn" data-tab="playstore">
+        <i data-lucide="smartphone"></i> Play Store & GitHub
+      </button>
+    </nav>
+
+    <!-- RIGHT CONTROLS -->
+    <div class="header-right">
+      <button class="btn-secondary" id="btn-api-key">
+        <i data-lucide="key"></i> API Key Settings
+      </button>
+      <button class="btn-primary" id="btn-export-zip">
+        <i data-lucide="download"></i> Export Project
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="main-container">
+
+    <!-- ==================== TAB 1: BASE44 / BOLT APP BUILDER ==================== -->
+    <section id="tab-builder" class="tab-content active">
+      <div class="builder-layout">
+        
+        <!-- LEFT SIDEBAR: PROMPT & TEMPLATES & FILE TREE -->
+        <aside class="builder-sidebar">
+          <div class="sidebar-section">
+            <label class="section-label"><i data-lucide="wand2"></i> AI Prompt Engine</label>
+            <div class="prompt-box-wrapper">
+              <textarea id="builder-prompt" placeholder="Describe the web application or website you want to build... (e.g., Build a modern SaaS Analytics Dashboard with dark glassmorphic charts, live metrics, and user management)"></textarea>
+              <div class="prompt-actions">
+                <button class="btn-sm btn-secondary" id="btn-suggest-prompt">
+                  <i data-lucide="lightbulb"></i> Idea
+                </button>
+                <button class="btn-sm btn-accent" id="btn-generate-app">
+                  <i data-lucide="sparkles"></i> Generate App
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUICK TEMPLATES -->
+          <div class="sidebar-section">
+            <label class="section-label"><i data-lucide="layers"></i> Quick Starters</label>
+            <div class="template-grid">
+              <button class="template-card" data-template="saas">
+                <i data-lucide="bar-chart-3"></i>
+                <span>SaaS Dashboard</span>
+              </button>
+              <button class="template-card" data-template="ecommerce">
+                <i data-lucide="shopping-bag"></i>
+                <span>E-Commerce Store</span>
+              </button>
+              <button class="template-card" data-template="portfolio">
+                <i data-lucide="user-check"></i>
+                <span>Dev Portfolio</span>
+              </button>
+              <button class="template-card" data-template="ai-chat">
+                <i data-lucide="bot"></i>
+                <span>AI Chat App</span>
+              </button>
+              <button class="template-card" data-template="kanban">
+                <i data-lucide="trello"></i>
+                <span>Task Kanban</span>
+              </button>
+              <button class="template-card" data-template="crypto">
+                <i data-lucide="coins"></i>
+                <span>Crypto Tracker</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- VIRTUAL FILES SYSTEM -->
+          <div class="sidebar-section file-tree-section">
+            <div class="file-tree-header">
+              <span class="section-label"><i data-lucide="folder-tree"></i> Project Files</span>
+              <button class="btn-icon" id="btn-add-file" title="Add File"><i data-lucide="file-plus"></i></button>
+            </div>
+            <ul class="file-list" id="file-list">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </aside>
+
+        <!-- CENTER: CODE EDITOR -->
+        <div class="builder-editor-container">
+          <div class="editor-tabs-bar" id="editor-tabs">
+            <!-- Dynamically populated file tabs -->
+          </div>
+          <div class="editor-area">
+            <textarea id="code-editor" spellcheck="false" autocomplete="off"></textarea>
+            <div class="editor-status-bar" id="editor-status-bar">
+              <span>index.html</span> <span>0 lines | 0 chars</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: LIVE PREVIEW SANDBOX -->
+        <div class="builder-preview-container">
+          <div class="preview-header">
+            <div class="preview-address-bar">
+              <span class="status-dot green"></span>
+              <input type="text" id="preview-url" value="http://localhost:3000 (Live Sandbox)" readonly>
+            </div>
+            <div class="preview-controls">
+              <button class="btn-icon" id="btn-device-desktop" title="Desktop View"><i data-lucide="monitor"></i></button>
+              <button class="btn-icon" id="btn-device-mobile" title="Mobile View"><i data-lucide="smartphone"></i></button>
+              <button class="btn-icon" id="btn-refresh-preview" title="Hot Reload"><i data-lucide="rotate-cw"></i></button>
+              <button class="btn-icon" id="btn-open-fullscreen" title="Open Full Screen"><i data-lucide="external-link"></i></button>
+            </div>
+          </div>
+          <div class="preview-body" id="preview-wrapper">
+            <iframe id="preview-iframe" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: GOOGLE AI STUDIO PLAYGROUND ==================== -->
+    <section id="tab-ai-studio" class="tab-content">
+      <div class="studio-layout">
+        
+        <!-- LEFT CONTROL PANEL -->
+        <aside class="studio-controls">
+          <h3><i data-lucide="sliders"></i> Model Parameters</h3>
+
+          <div class="form-group">
+            <label for="model-select">Target Model</label>
+            <select id="model-select">
+              <option value="gemini-2.0-flash" selected>Gemini 2.0 Flash (Fastest)</option>
+              <option value="gemini-1.5-pro">Gemini 1.5 Pro (Reasoning & Complex Tasks)</option>
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash (Lightweight)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="system-instruction">System Instructions</label>
+            <textarea id="system-instruction" placeholder="You are an expert AI software architect and full-stack web designer..."></textarea>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Temperature</span>
+              <span id="val-temp">0.7</span>
+            </div>
+            <input type="range" id="param-temp" min="0" max="2" step="0.1" value="0.7">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Top-P</span>
+              <span id="val-topp">0.95</span>
+            </div>
+            <input type="range" id="param-topp" min="0" max="1" step="0.05" value="0.95">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Top-K</span>
+              <span id="val-topk">40</span>
+            </div>
+            <input type="range" id="param-topk" min="1" max="100" step="1" value="40">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Max Output Tokens</span>
+              <span id="val-tokens">8192</span>
+            </div>
+            <input type="range" id="param-tokens" min="256" max="8192" step="256" value="8192">
+          </div>
+
+          <div class="token-meter">
+            <div class="token-info">
+              <span>Estimated Prompt Tokens:</span>
+              <strong id="token-count">0 tokens</strong>
+            </div>
+            <div class="token-bar"><div class="token-fill" id="token-bar-fill" style="width: 5%;"></div></div>
+          </div>
+        </aside>
+
+        <!-- CENTER CHAT & PROMPT TESTER -->
+        <div class="studio-workspace">
+          <div class="studio-topbar">
+            <h2><i data-lucide="message-square"></i> Prompt Workbench</h2>
+            <div class="topbar-actions">
+              <button class="btn-secondary btn-sm" id="btn-clear-chat"><i data-lucide="trash-2"></i> Clear</button>
+              <button class="btn-accent btn-sm" id="btn-get-code"><i data-lucide="code-2"></i> Get Code Snippet</button>
+            </div>
+          </div>
+
+          <div class="studio-chat-history" id="chat-history">
+            <div class="chat-bubble system">
+              <i data-lucide="info"></i>
+              <div>Welcome to Google AI Studio Workbench. Type your prompt below to test response structure, JSON schemas, code generation, or system prompts.</div>
+            </div>
+          </div>
+
+          <div class="studio-input-area">
+            <textarea id="studio-prompt" placeholder="Type a prompt to test your model... (e.g. Generate a JSON schema for a user profile API with validation rules)"></textarea>
+            <button class="btn-primary" id="btn-send-prompt">
+              <i data-lucide="send"></i> Run Prompt
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT CODE EXPORTER -->
+        <div class="studio-code-exporter" id="code-exporter-panel">
+          <div class="exporter-header">
+            <h3><i data-lucide="terminal"></i> Export API Code</h3>
+            <button class="btn-icon" id="btn-close-exporter"><i data-lucide="x"></i></button>
+          </div>
+          <div class="lang-selector">
+            <button class="lang-tab active" data-lang="python">Python</button>
+            <button class="lang-tab" data-lang="js">JavaScript (Node)</button>
+            <button class="lang-tab" data-lang="flutter">Dart / Flutter</button>
+            <button class="lang-tab" data-lang="curl">cURL</button>
+          </div>
+          <div class="code-snippet-box">
+            <pre><code id="export-code-display"># Code will appear here...</code></pre>
+          </div>
+          <button class="btn-secondary w-full" id="btn-copy-code"><i data-lucide="copy"></i> Copy Code Snippet</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: FREE DOMAIN & HOSTING DEPLOYMENT ==================== -->
+    <section id="tab-subdomain" class="tab-content">
+      <div class="publishing-container">
+        <div class="section-title">
+          <h2><i data-lucide="globe"></i> Free Domain & Cloud Hosting Integration</h2>
+          <p>Deploy your AI-generated website or web application completely free with a custom subdomain in minutes.</p>
+        </div>
+
+        <div class="domain-cards-grid">
+          
+          <!-- SUBDOMAIN GENERATOR & NETLIFY/VERCEL SETUP -->
+          <div class="pub-card highlight-card">
+            <div class="card-badge">Instant Setup</div>
+            <h3><i data-lucide="zap"></i> Free Subdomain & 1-Click Cloud Deploy</h3>
+            <p>Deploy your generated project files to leading free static hosting providers with custom domain support.</p>
+
+            <div class="subdomain-form">
+              <label>Claim Your Free App Subdomain</label>
+              <div class="input-with-suffix">
+                <input type="text" id="custom-subdomain-name" placeholder="my-awesome-app" value="my-ai-app">
+                <span class="domain-suffix">.omnistudio.site / .netlify.app</span>
+              </div>
+              <button class="btn-primary w-full mt-3" id="btn-deploy-free-hosting">
+                <i data-lucide="rocket"></i> Package & Deploy to Free Cloud
+              </button>
+            </div>
+
+            <div class="deploy-steps">
+              <h4>Included Deployment Options:</h4>
+              <ul>
+                <li><i data-lucide="check-circle"></i> <strong>Netlify Drop:</strong> Instant drag & drop hosting with <code>https://your-name.netlify.app</code></li>
+                <li><i data-lucide="check-circle"></i> <strong>Vercel CLI / Web:</strong> Zero-config deployment with free SSL & custom domain binding</li>
+                <li><i data-lucide="check-circle"></i> <strong>GitHub Pages:</strong> Direct publishing to <code>https://username.github.io/repo</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CUSTOM DOMAIN BINDING INSTRUCTIONS -->
+          <div class="pub-card">
+            <h3><i data-lucide="link"></i> Bind Your Own Free Domain (.tk / .gq / Cloudflare)</h3>
+            <p>Step-by-step guide to pointing any custom domain to your deployed website for zero cost.</p>
+            
+            <div class="steps-list">
+              <div class="step-item">
+                <span class="step-num">1</span>
+                <div>
+                  <strong>Get a Free Domain / DNS</strong>
+                  <p>Register a free domain via Cloudflare Registrar, DuckDNS, or FreeDNS.</p>
+                </div>
+              </div>
+              <div class="step-item">
+                <span class="step-num">2</span>
+                <div>
+                  <strong>Add CNAME Record</strong>
+                  <p>Point <code>CNAME @</code> or <code>CNAME www</code> to your generated site host URL.</p>
+                </div>
+              </div>
+              <div class="step-item">
+                <span class="step-num">3</span>
+                <div>
+                  <strong>Enable Free Automatic SSL</strong>
+                  <p>Cloudflare and Netlify automatically issue free HTTPS SSL certificates instantly.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: PLAY STORE & GITHUB PUBLISHING HUB ==================== -->
+    <section id="tab-playstore" class="tab-content">
+      <div class="publishing-container">
+        <div class="section-title">
+          <h2><i data-lucide="smartphone"></i> Publish to GitHub & Google Play Store</h2>
+          <p>Export your AI web project into a native Android App (APK/AAB) ready for submission to the Google Play Store and sync to GitHub.</p>
+        </div>
+
+        <div class="publish-grid">
+
+          <!-- GITHUB PUBLISHER -->
+          <div class="pub-card">
+            <div class="card-icon blue"><i data-lucide="github"></i></div>
+            <h3>Export & Publish to GitHub</h3>
+            <p>Push your generated code files directly into a new GitHub repository or publish with 1-click.</p>
+
+            <div class="form-group mt-3">
+              <label>Repository Name</label>
+              <input type="text" id="github-repo-name" value="my-ai-generated-app" placeholder="my-app">
+            </div>
+
+            <div class="form-group">
+              <label>GitHub Personal Access Token (Optional for 1-Click Push)</label>
+              <input type="password" id="github-pat-token" placeholder="ghp_xxxxxxxxxxxxxxxxx">
+              <small>Or use the command line script generator below</small>
+            </div>
+
+            <div class="flex-buttons-row mt-3">
+              <button class="btn-primary flex-1" id="btn-generate-github-script">
+                <i data-lucide="git-branch"></i> Generate GitHub Push Commands
+              </button>
+              <a href="https://github.com/new" target="_blank" rel="noopener" class="btn-secondary" title="Open GitHub New Repository page">
+                <i data-lucide="external-link"></i> Open GitHub
+              </a>
+            </div>
+
+            <div class="code-box mt-3 hidden" id="github-script-output">
+              <pre><code id="github-cmd-display">git init ...</code></pre>
+            </div>
+          </div>
+
+          <!-- GOOGLE PLAY STORE ANDROID PACKAGER -->
+          <div class="pub-card">
+            <div class="card-icon green"><i data-lucide="play"></i></div>
+            <h3>Google Play Store Android Packager</h3>
+            <p>Convert your website into an Android APK / App Bundle using Capacitor or Trusted Web Activity (TWA) and upload to Google Play Console.</p>
+
+            <div class="android-steps mt-3">
+              <div class="android-step">
+                <i data-lucide="package"></i>
+                <div>
+                  <strong>1. Generate Android Manifest & Icons</strong>
+                  <button class="btn-secondary btn-sm mt-1" id="btn-generate-manifest">
+                    <i data-lucide="download"></i> Download manifest.json & Assets
+                  </button>
+                </div>
+              </div>
+
+              <div class="android-step mt-3">
+                <i data-lucide="terminal"></i>
+                <div>
+                  <strong>2. Capacitor / Bubblewrap Build Commands</strong>
+                  <button class="btn-accent btn-sm mt-1" id="btn-show-apk-guide">
+                    <i data-lucide="code"></i> View 1-Click Build Commands
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-box mt-3 hidden" id="apk-guide-output">
+              <pre><code># 1. Install Capacitor CLI
+npm install @capacitor/core @capacitor/cli @capacitor/android
+
+# 2. Initialize project
+npx cap init "My App" "com.omnistudio.myapp" --web-dir "."
+
+# 3. Add Android platform & build APK
+npx cap add android
+npx cap open android
+# Or use Bubblewrap for instant TWA APK:
+# npx @botbrew/bubblewrap init --manifest=manifest.json
+# npx @botbrew/bubblewrap build</code></pre>
+            </div>
+
+            <div class="playstore-actions mt-4 flex gap-3">
+              <a href="https://play.google.com/console/u/0/signup" target="_blank" rel="noopener" class="btn-primary w-full text-center" style="background: linear-gradient(135deg, #00e676, #00b0ff); color: #000;">
+                <i data-lucide="external-link"></i> Launch Google Play Console
+              </a>
+            </div>
+
+            <div class="playstore-checklist mt-4">
+              <h4>Play Store Publishing Checklist:</h4>
+              <ul>
+                <li><i data-lucide="check"></i> Google Play Console Developer Account registered ($25 lifetime)</li>
+                <li><i data-lucide="check"></i> Android App Bundle (.aab) compiled and signed</li>
+                <li><i data-lucide="check"></i> High-resolution icon (512x512) and feature graphic (1024x500)</li>
+                <li><i data-lucide="check"></i> Privacy Policy URL (can use generated free domain)</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: API KEY SETTINGS -->
+  <div class="modal-overlay hidden" id="modal-api-key">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i data-lucide="key"></i> Google Gemini API Key Settings</h3>
+        <button class="btn-icon" id="btn-close-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p>Enter your free Google Gemini API Key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>. Your key is stored securely in your browser's LocalStorage and is never shared.</p>
+        <div class="form-group mt-3">
+          <label for="input-api-key">Gemini API Key</label>
+          <input type="password" id="input-api-key" placeholder="AIzaSy...">
+        </div>
+        <div class="alert-box note">
+          <i data-lucide="shield-check"></i>
+          <span>If left blank, OmniStudio AI operates using built-in high-performance template generators.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-clear-key">Clear Key</button>
+        <button class="btn-primary" id="btn-save-key">Save API Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN JAVASCRIPT MODULES -->
+  <script src="templates.js"></script>
+  <script src="ai-studio.js"></script>
+  <script src="builder.js"></script>
+  <script src="publishing.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
